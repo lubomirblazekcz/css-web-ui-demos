@@ -1,0 +1,174 @@
+x-carousel {
+  anchor-scope: --carousel;
+  display: block;
+  inline-size: 100cqi;
+}
+
+x-carousel [data-carousel-marker-group] {
+  position: absolute;
+  position-anchor: --carousel;
+
+  container: marker-group / inline-size;
+
+  display: grid;
+  gap: var(--size-2);
+  place-content: safe center;
+  box-sizing: border-box;
+  border-radius: var(--radius-round);
+
+  scrollbar-width: none;
+  scroll-behavior: smooth;
+
+  inline-size: 100%;
+  max-inline-size: min(90cqi, 210px);
+  overflow-x: auto;
+  scroll-snap-type: x mandatory;
+  overscroll-behavior-x: contain;
+
+  padding: 5px 10px;
+  scroll-padding-inline: 10px;
+  mask: linear-gradient(
+    to right,
+    transparent 0,
+    black 10px,
+    black calc(100% - 10px),
+    transparent 100%
+  );
+
+  top: anchor(bottom);
+  left: calc(anchor(left) - 10%);
+  right: calc(anchor(right) - 10%);
+  margin-block: var(--size-3);
+
+  grid-auto-columns: var(--size-3);
+  grid-auto-flow: column;
+  justify-self: center;
+}
+
+x-carousel [data-carousel-marker] {
+  scroll-snap-align: center;
+  aspect-ratio: 1;
+  border: 1px solid light-dark(var(--gray-6), var(--surface-4));
+  border-radius: var(--radius-round);
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+  text-decoration: none;
+  transition:
+    transform 0.3s var(--ease-spring-2),
+    outline-offset 0.25s var(--ease-3);
+  animation: scale-in-and-out linear both;
+  animation-timeline: view(x);
+  interactivity: auto;
+}
+
+x-carousel [data-carousel-marker][aria-current="true"] {
+  background: var(--link);
+  border-color: var(--link);
+}
+
+@media (forced-colors: active) {
+  x-carousel [data-carousel-marker][aria-current="true"] {
+    background: Highlight;
+    border-color: Highlight;
+  }
+}
+
+x-carousel [data-carousel-marker]:not(:active):hover {
+  transform: scale(1.25);
+}
+
+x-carousel [data-carousel-marker]:not(:active):focus {
+  outline: 2px solid var(--link);
+  outline-offset: 2px;
+}
+
+x-carousel [data-carousel-scroll-button] {
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+
+  position: absolute;
+  z-index: 1;
+  position-anchor: --carousel;
+
+  font-size: var(--font-size-3);
+  inline-size: 44px;
+  margin: var(--size-3);
+  padding: 1px 6px;
+
+  font-family: "Material Symbols Outlined";
+  line-height: 1;
+  font-variation-settings:
+    "FILL" 0,
+    "wght" 100,
+    "GRAD" 0,
+    "opsz" 24;
+
+  display: flex;
+  place-items: center;
+  place-content: center;
+  aspect-ratio: 1;
+  background: none;
+  border: 1px solid var(--surface-3);
+  border-radius: var(--radius-round);
+
+  transition:
+    transform 0.3s var(--ease-spring-3),
+    opacity 0.5s var(--ease-3),
+    background-color 0.3s var(--ease-3),
+    outline-offset 0.25s var(--ease-3);
+}
+
+@media (forced-colors: active) {
+  x-carousel [data-carousel-scroll-button] {
+    background: Canvas;
+  }
+}
+
+x-carousel [data-carousel-scroll-button="next"] {
+  --_inner: center span-inline-start;
+  --_inner-under: block-end span-inline-start;
+  --_inner-over: block-start span-inline-start;
+  --_outer: inline-end center;
+  --_outer-under: end;
+  --_outer-over: block-start inline-end;
+
+  position-area: var(--_outer);
+}
+
+x-carousel [data-carousel-scroll-button="prev"] {
+  --_inner: center span-inline-end;
+  --_inner-under: block-end span-inline-end;
+  --_inner-over: block-start span-inline-end;
+  --_outer: inline-start center;
+  --_outer-under: block-end inline-start;
+  --_outer-over: start;
+
+  position-area: var(--_outer);
+}
+
+x-carousel:has([data-carousel-scroll-button]:is(:hover, :focus-visible)) {
+  [data-carousel-scroll-button]:not(:disabled) {
+    background-color: light-dark(white, var(--surface-1));
+    border-color: var(--surface-4);
+    font-variation-settings: "opsz" 30;
+    transform: scale(1.1);
+  }
+}
+
+x-carousel [data-carousel-scroll-button]:not(:active):focus-visible {
+  outline-offset: 2px;
+  outline: 2px solid var(--link);
+}
+
+x-carousel [data-carousel-scroll-button="next"]:not(:disabled):active {
+  transform: translateX(5px) scale(0.95);
+}
+
+x-carousel [data-carousel-scroll-button="prev"]:not(:disabled):active {
+  transform: translateX(-5px) scale(0.95);
+}
+
+x-carousel [data-carousel-scroll-button]:disabled {
+  opacity: 25%;
+  cursor: not-allowed;
+}

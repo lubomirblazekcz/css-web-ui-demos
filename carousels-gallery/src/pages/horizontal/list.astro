@@ -1,5 +1,8 @@
 ---
 import Layout from "../../layouts/Layout.astro";
+import "../../styles/x-carousel.css";
+
+const slides = Array.from({ length: 16 }, (_, index) => index + 1);
 ---
 
 <Layout title="Carousel Gallery">
@@ -25,67 +28,186 @@ import Layout from "../../layouts/Layout.astro";
         Scroll buttons also responsively adapt to inner or outer positioning
         based on availability!
       </p>
+      <p>
+        The first example uses CSS Overflow 5 pseudo-elements. The second uses
+        explicit HTML controls enhanced by <code>&lt;x-carousel&gt;</code> so the
+        native and polyfilled implementations can be compared one-to-one.
+      </p>
     </header>
 
-    <div role="region" aria-label="List carousel demo">
-      <div
-        class="carousel carousel--scroll-markers carousel--scroll-buttons carousel--offscreen-inert"
-        aria-live="polite"
-      >
-        <div class="carousel__slide" tabindex="0" data-label="Slide 1">
-          <p>1</p>
+    <div class="carousel-demos">
+      <article class="carousel-demo carousel-demo--native">
+        <h3>Native CSS Overflow 5</h3>
+        <div role="region" aria-label="Native list carousel demo">
+          <div
+            class="carousel carousel--native-list carousel--scroll-markers carousel--scroll-buttons carousel--offscreen-inert"
+            aria-live="polite"
+          >
+            {
+              slides.map((slide) => (
+                <div
+                  class="carousel__slide"
+                  tabindex="0"
+                  data-label={`Slide ${slide}`}
+                >
+                  <p>{slide}</p>
+                </div>
+              ))
+            }
+          </div>
         </div>
-        <div class="carousel__slide" tabindex="0" data-label="Slide 2">
-          <p>2</p>
-        </div>
-        <div class="carousel__slide" tabindex="0" data-label="Slide 3">
-          <p>3</p>
-        </div>
-        <div class="carousel__slide" tabindex="0" data-label="Slide 4">
-          <p>4</p>
-        </div>
-        <div class="carousel__slide" tabindex="0" data-label="Slide 5">
-          <p>5</p>
-        </div>
-        <div class="carousel__slide" tabindex="0" data-label="Slide 6">
-          <p>6</p>
-        </div>
-        <div class="carousel__slide" tabindex="0" data-label="Slide 7">
-          <p>7</p>
-        </div>
-        <div class="carousel__slide" tabindex="0" data-label="Slide 8">
-          <p>8</p>
-        </div>
-        <div class="carousel__slide" tabindex="0" data-label="Slide 9">
-          <p>9</p>
-        </div>
-        <div class="carousel__slide" tabindex="0" data-label="Slide 10">
-          <p>10</p>
-        </div>
-        <div class="carousel__slide" tabindex="0" data-label="Slide 11">
-          <p>11</p>
-        </div>
-        <div class="carousel__slide" tabindex="0" data-label="Slide 12">
-          <p>12</p>
-        </div>
-        <div class="carousel__slide" tabindex="0" data-label="Slide 13">
-          <p>13</p>
-        </div>
-        <div class="carousel__slide" tabindex="0" data-label="Slide 14">
-          <p>14</p>
-        </div>
-        <div class="carousel__slide" tabindex="0" data-label="Slide 15">
-          <p>15</p>
-        </div>
-        <div class="carousel__slide" tabindex="0" data-label="Slide 16">
-          <p>16</p>
-        </div>
-      </div>
+      </article>
+
+      <article class="carousel-demo">
+        <h3>Polyfilled <code>&lt;x-carousel&gt;</code></h3>
+        <x-carousel
+          id="horizontal-list-polyfill"
+          role="region"
+          aria-label="Polyfilled list carousel demo"
+        >
+          <div data-carousel-viewport>
+            <div
+              class="carousel"
+              data-carousel-scroller
+              data-inert-offscreen
+              aria-live="polite"
+            >
+              {
+                slides.map((slide) => (
+                  <div
+                    id={`polyfill-list-slide-${slide}`}
+                    class="carousel__slide"
+                    tabindex="0"
+                    data-carousel-slide
+                    data-label={`Slide ${slide}`}
+                  >
+                    <p>{slide}</p>
+                  </div>
+                ))
+              }
+            </div>
+
+            <button
+              type="button"
+              commandfor="horizontal-list-polyfill"
+              command="--prev"
+              data-carousel-scroll-button="prev"
+              aria-label="Scroll left"
+            >
+              arrow_back
+            </button>
+            <button
+              type="button"
+              commandfor="horizontal-list-polyfill"
+              command="--next"
+              data-carousel-scroll-button="next"
+              aria-label="Scroll right"
+            >
+              arrow_forward
+            </button>
+          </div>
+
+          <nav data-carousel-marker-group aria-label="Choose a slide">
+            {
+              slides.map((slide, index) => (
+                <a
+                  href={`#polyfill-list-slide-${slide}`}
+                  data-carousel-marker
+                  aria-label={`Slide ${slide}`}
+                  aria-current={index === 0 ? "true" : undefined}
+                />
+              ))
+            }
+          </nav>
+        </x-carousel>
+      </article>
     </div>
   </section>
 </Layout>
 
+<script>
+  import "../../components/x-carousel";
+
+  const nativeCarousel = document.querySelector<HTMLElement>(
+    ".carousel--native-list",
+  );
+  const polyfilledCarousel = document.querySelector("x-carousel");
+
+  const getNativeSnapTarget = () => {
+    if (!nativeCarousel) return;
+
+    const nativeBounds = nativeCarousel.getBoundingClientRect();
+    const nativeStyles = getComputedStyle(nativeCarousel);
+    const isRtl = nativeStyles.direction === "rtl";
+    const scrollPadding =
+      Number.parseFloat(nativeStyles.scrollPaddingInlineStart) || 0;
+    const snapLine = isRtl
+      ? nativeBounds.right - scrollPadding
+      : nativeBounds.left + scrollPadding;
+
+    return Array.from(
+      nativeCarousel.querySelectorAll<HTMLElement>(":scope > .carousel__slide"),
+    ).reduce<{ slide?: HTMLElement; distance: number }>(
+      (closest, slide) => {
+        const slideBounds = slide.getBoundingClientRect();
+        const slideSnapPoint = isRtl ? slideBounds.right : slideBounds.left;
+        const distance = Math.abs(slideSnapPoint - snapLine);
+
+        return distance < closest.distance ? { slide, distance } : closest;
+      },
+      { distance: Number.POSITIVE_INFINITY },
+    ).slide;
+  };
+
+  const preserveNativeSnapTarget = () => {
+    setTimeout(() => {
+      const nativeSnapTarget = getNativeSnapTarget();
+      if (!nativeSnapTarget) return;
+
+      const { scrollX, scrollY } = window;
+      nativeSnapTarget.scrollIntoView({
+        behavior: "instant",
+        block: "nearest",
+        inline: "start",
+      });
+      window.scrollTo({
+        behavior: "instant",
+        left: scrollX,
+        top: scrollY,
+      });
+    });
+  };
+
+  if (polyfilledCarousel) {
+    polyfilledCarousel.addEventListener("click", preserveNativeSnapTarget);
+    polyfilledCarousel.addEventListener("focusin", preserveNativeSnapTarget);
+  }
+</script>
+
 <style>
+  .carousel-demos {
+    display: grid;
+    gap: var(--size-10);
+    min-inline-size: 0;
+  }
+
+  .carousel-demo {
+    padding-block-end: var(--size-7);
+    display: grid;
+    gap: var(--size-3);
+    min-inline-size: 0;
+
+    > h3 {
+      justify-self: center;
+      padding-inline: 5vmin;
+      text-align: center;
+    }
+  }
+
+  .carousel-demo--native {
+    anchor-scope: --carousel;
+  }
+
   .carousel {
     inline-size: 100cqi;
 
@@ -131,6 +253,11 @@ import Layout from "../../layouts/Layout.astro";
         transition: font-size 1s var(--ease-spring-4);
       }
 
+      &[data-scroll-snapped="inline"] > p {
+        color: var(--link);
+        font-size: var(--font-size-7);
+      }
+
       @container scroll-state(snapped: inline) {
         > p {
           color: var(--link);
@@ -138,5 +265,9 @@ import Layout from "../../layouts/Layout.astro";
         }
       }
     }
+  }
+
+  x-carousel [data-carousel-scroll-button] {
+    position-area: var(--_inner);
   }
 </style>
