@@ -173,6 +173,112 @@
   }
 }
 
+/* HTML scroll marker groups
+ * -------------------------------------------------------------------------*/
+
+.x-carousel-marker-group {
+  position: absolute;
+  position-anchor: --carousel;
+
+  container: marker-group / inline-size;
+
+  display: grid;
+  gap: var(--size-2);
+  place-content: safe center;
+  box-sizing: border-box;
+  border-radius: var(--radius-round);
+
+  scrollbar-width: none;
+  scroll-behavior: smooth;
+  scroll-target-group: auto;
+  pointer-events: none;
+}
+
+.carousel:where(:not(.carousel--vertical), .carousel--bidi) ~ .x-carousel-marker-group {
+  inline-size: 100%;
+  max-inline-size: min(90cqi, 210px);
+  overflow-x: auto;
+  scroll-snap-type: x mandatory;
+  overscroll-behavior-x: contain;
+
+  padding: 5px 10px;
+  scroll-padding-inline: 10px;
+  mask: linear-gradient(to right, transparent 0, black 10px, black calc(100% - 10px), transparent 100%);
+
+  top: calc(anchor(bottom) + var(--x-carousel-marker-group-offset, 0px));
+  left: calc(anchor(left) - 10%);
+  right: calc(anchor(right) - 10%);
+  margin-block: var(--size-3);
+
+  grid-auto-columns: var(--size-3);
+  grid-auto-flow: column;
+  justify-self: center;
+}
+
+.carousel--vertical ~ .x-carousel-marker-group {
+  position-area: left center;
+
+  margin-inline: var(--size-3);
+  overflow-y: auto;
+  scroll-snap-type: y mandatory;
+
+  inline-size: var(--size-5);
+  block-size: 80cqb;
+  max-block-size: min(50cqb, 210px);
+
+  grid-auto-rows: var(--size-3);
+  grid-auto-flow: row;
+
+  padding-block: 10px;
+  padding-inline: 0;
+  scroll-padding-block: 10px;
+  mask: linear-gradient(to bottom, transparent 0, black 10px, black calc(100% - 10px), transparent 100%);
+}
+
+.x-carousel-marker {
+  scroll-snap-align: center;
+  aspect-ratio: 1;
+  border: 1px solid light-dark(var(--gray-6), var(--surface-4));
+  border-radius: var(--radius-round);
+  cursor: pointer;
+  text-decoration: none;
+  -webkit-tap-highlight-color: transparent;
+  transition:
+    transform 0.3s var(--ease-spring-2),
+    outline-offset 0.25s var(--ease-3);
+  animation: scale-in-and-out linear both;
+  animation-timeline: view(x);
+  interactivity: auto;
+  pointer-events: auto;
+
+  &:not(:active):hover {
+    transform: scale(1.25);
+  }
+
+  &:not(:active):focus {
+    outline: 2px solid var(--link);
+    outline-offset: 2px;
+  }
+}
+
+.x-carousel-marker:target-current,
+.x-carousel-marker[aria-current="true"] {
+  background: var(--link);
+  border-color: var(--link);
+}
+
+@media (forced-colors: active) {
+  .x-carousel-marker:target-current,
+  .x-carousel-marker[aria-current="true"] {
+    background: Highlight;
+    border-color: Highlight;
+  }
+}
+
+.carousel--vertical ~ .x-carousel-marker-group .x-carousel-marker {
+  animation-timeline: view(y);
+}
+
 /* TODO:
   up, down
   use scroll-state(scrollable) to auto generate buttons */

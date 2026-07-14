@@ -3,7 +3,7 @@ import Layout from "../../layouts/Layout.astro";
 ---
 
 <Layout title="Carousel Gallery">
-  <section>
+  <section style="overflow: clip">
     <header>
       <h2>Horizontal List</h2>
       <div class="tags">
@@ -27,65 +27,136 @@ import Layout from "../../layouts/Layout.astro";
       </p>
     </header>
 
-    <div role="region" aria-label="List carousel demo">
+    <x-carousel id="fullCarousel" role="region" aria-label="List carousel demo">
       <div
         class="carousel carousel--scroll-markers carousel--scroll-buttons carousel--offscreen-inert"
         aria-live="polite"
+        data-x-carousel-part="content"
       >
-        <div class="carousel__slide" tabindex="0" data-label="Slide 1">
+        <div id="slide-1" class="carousel__slide" tabindex="0" data-label="Slide 1">
           <p>1</p>
         </div>
-        <div class="carousel__slide" tabindex="0" data-label="Slide 2">
+        <div id="slide-2" class="carousel__slide" tabindex="0" data-label="Slide 2">
           <p>2</p>
         </div>
-        <div class="carousel__slide" tabindex="0" data-label="Slide 3">
+        <div id="slide-3" class="carousel__slide" tabindex="0" data-label="Slide 3">
           <p>3</p>
         </div>
-        <div class="carousel__slide" tabindex="0" data-label="Slide 4">
+        <div id="slide-4" class="carousel__slide" tabindex="0" data-label="Slide 4">
           <p>4</p>
         </div>
-        <div class="carousel__slide" tabindex="0" data-label="Slide 5">
+        <div id="slide-5" class="carousel__slide" tabindex="0" data-label="Slide 5">
           <p>5</p>
         </div>
-        <div class="carousel__slide" tabindex="0" data-label="Slide 6">
+        <div id="slide-6" class="carousel__slide" tabindex="0" data-label="Slide 6">
           <p>6</p>
         </div>
-        <div class="carousel__slide" tabindex="0" data-label="Slide 7">
+        <div id="slide-7" class="carousel__slide" tabindex="0" data-label="Slide 7">
           <p>7</p>
         </div>
-        <div class="carousel__slide" tabindex="0" data-label="Slide 8">
+        <div id="slide-8" class="carousel__slide" tabindex="0" data-label="Slide 8">
           <p>8</p>
         </div>
-        <div class="carousel__slide" tabindex="0" data-label="Slide 9">
+        <div id="slide-9" class="carousel__slide" tabindex="0" data-label="Slide 9">
           <p>9</p>
         </div>
-        <div class="carousel__slide" tabindex="0" data-label="Slide 10">
+        <div id="slide-10" class="carousel__slide" tabindex="0" data-label="Slide 10">
           <p>10</p>
         </div>
-        <div class="carousel__slide" tabindex="0" data-label="Slide 11">
+        <div id="slide-11" class="carousel__slide" tabindex="0" data-label="Slide 11">
           <p>11</p>
         </div>
-        <div class="carousel__slide" tabindex="0" data-label="Slide 12">
+        <div id="slide-12" class="carousel__slide" tabindex="0" data-label="Slide 12">
           <p>12</p>
         </div>
-        <div class="carousel__slide" tabindex="0" data-label="Slide 13">
+        <div id="slide-13" class="carousel__slide" tabindex="0" data-label="Slide 13">
           <p>13</p>
         </div>
-        <div class="carousel__slide" tabindex="0" data-label="Slide 14">
+        <div id="slide-14" class="carousel__slide" tabindex="0" data-label="Slide 14">
           <p>14</p>
         </div>
-        <div class="carousel__slide" tabindex="0" data-label="Slide 15">
+        <div id="slide-15" class="carousel__slide" tabindex="0" data-label="Slide 15">
           <p>15</p>
         </div>
-        <div class="carousel__slide" tabindex="0" data-label="Slide 16">
+        <div id="slide-16" class="carousel__slide" tabindex="0" data-label="Slide 16">
           <p>16</p>
         </div>
       </div>
-    </div>
+      <nav class="x-carousel-marker-group" data-x-carousel-part="markerGroup" aria-label="Carousel navigation">
+        <a href="#slide-1" class="x-carousel-marker" aria-label="Slide 1" data-x-carousel-part="marker" aria-current="true"></a>
+        <a href="#slide-2" class="x-carousel-marker" aria-label="Slide 2" data-x-carousel-part="marker"></a>
+        <a href="#slide-3" class="x-carousel-marker" aria-label="Slide 3" data-x-carousel-part="marker"></a>
+        <a href="#slide-4" class="x-carousel-marker" aria-label="Slide 4" data-x-carousel-part="marker"></a>
+        <a href="#slide-5" class="x-carousel-marker" aria-label="Slide 5" data-x-carousel-part="marker"></a>
+        <a href="#slide-6" class="x-carousel-marker" aria-label="Slide 6" data-x-carousel-part="marker"></a>
+        <a href="#slide-7" class="x-carousel-marker" aria-label="Slide 7" data-x-carousel-part="marker"></a>
+        <a href="#slide-8" class="x-carousel-marker" aria-label="Slide 8" data-x-carousel-part="marker"></a>
+        <a href="#slide-9" class="x-carousel-marker" aria-label="Slide 9" data-x-carousel-part="marker"></a>
+        <a href="#slide-10" class="x-carousel-marker" aria-label="Slide 10" data-x-carousel-part="marker"></a>
+        <a href="#slide-11" class="x-carousel-marker" aria-label="Slide 11" data-x-carousel-part="marker"></a>
+        <a href="#slide-12" class="x-carousel-marker" aria-label="Slide 12" data-x-carousel-part="marker"></a>
+        <a href="#slide-13" class="x-carousel-marker" aria-label="Slide 13" data-x-carousel-part="marker"></a>
+        <a href="#slide-14" class="x-carousel-marker" aria-label="Slide 14" data-x-carousel-part="marker"></a>
+        <a href="#slide-15" class="x-carousel-marker" aria-label="Slide 15" data-x-carousel-part="marker"></a>
+        <a href="#slide-16" class="x-carousel-marker" aria-label="Slide 16" data-x-carousel-part="marker"></a>
+      </nav>
+      <div style="display: flex; justify-content: space-between; gap: var(--size-2); margin-inline: var(--size-4); margin-block: var(--size-8);">
+        <button class="x-button circle muted" data-x-carousel-part="prev" command="--scrollPrev" commandfor="fullCarousel" aria-controls="fullCarousel" aria-label="Prev" disabled>
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M10.5 19.5 3 12m0 0 7.5-7.5M3 12h18" />
+          </svg>
+        </button>
+        <button class="x-button circle muted" data-x-carousel-part="next" command="--scrollNext" commandfor="fullCarousel" aria-controls="fullCarousel" aria-label="Next">
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M13.5 4.5 21 12m0 0-7.5 7.5M21 12H3" />
+          </svg>
+        </button>
+      </div>
+    </x-carousel>
   </section>
 </Layout>
 
+<script>
+  import { Carousel } from 'winduum-elements/components/carousel/index.js'
+
+  customElements.define('x-carousel', Carousel)
+
+  const markerGroup = document.querySelector('[data-xx-carousel-part="markerGroup"]')
+
+  if (markerGroup) {
+    new MutationObserver((mutations) => {
+      for (const { target } of mutations) {
+        if (!(target instanceof HTMLElement) || target.getAttribute('aria-current') !== 'true') continue
+
+        target.scrollIntoView({
+          behavior: 'smooth',
+          block: 'nearest',
+          inline: 'center',
+        })
+      }
+    }).observe(markerGroup, {
+      attributes: true,
+      subtree: true,
+      attributeFilter: ['aria-current'],
+    })
+  }
+</script>
+
 <style>
+  .x-carousel-marker-group {
+    --x-carousel-marker-group-offset: var(--size-8);
+
+    overflow: visible;
+    max-width: none;
+  }
+
+  .carousel--scroll-markers {
+    &:where(:not(.carousel--vertical), .carousel--bidi)::scroll-marker-group {
+      overflow: visible;
+      max-width: none;
+    }
+  }
+
   .carousel {
     inline-size: 100cqi;
 
@@ -124,6 +195,7 @@ import Layout from "../../layouts/Layout.astro";
       border: 1px solid var(--surface-3);
       box-shadow: var(--shadow-2);
       border-radius: var(--radius-2);
+      scroll-snap-stop: always;
 
       > p {
         font-family: var(--font-antique);
