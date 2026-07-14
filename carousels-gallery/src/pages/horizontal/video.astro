@@ -1,5 +1,25 @@
 ---
 import Layout from "../../layouts/Layout.astro";
+import "../../styles/x-carousel.css";
+
+const videos = [
+  {
+    source: "/carousel/turtle.mp4",
+    caption: "It's a turtle!",
+  },
+  {
+    source: "/carousel/snow.mp4",
+    caption: "Falling Snow",
+  },
+  {
+    source: "/carousel/wheel.mp4",
+    caption: "Ferris Wheel",
+  },
+  {
+    source: "/carousel/chameleon.mp4",
+    caption: "I See You",
+  },
+];
 ---
 
 <Layout title="Carousel Gallery">
@@ -18,73 +38,192 @@ import Layout from "../../layouts/Layout.astro";
         scroll AND scroll driven animation is incrementing a counter to show the
         current page against the total.
       </p>
+      <p>
+        The first example uses CSS Overflow 5 pseudo-elements. The second uses
+        explicit HTML controls enhanced by <code>&lt;x-carousel&gt;</code> so the
+        native and polyfilled implementations can be compared one-to-one.
+      </p>
     </header>
 
-    <div role="region" aria-label="Video carousel demo">
-      <div class="carousel carousel--unsnapped-inert" aria-live="polite">
-        <div class="carousel__slide" data-label="Slide 1">
-          <figure class="parallax-item" role="tabpanel" aria-label="Slide 1">
-            <video
-              width="1280"
-              height="720"
-              src="/carousel/turtle.mp4"
-              autoplay
-              muted
-              loop></video>
-            <figcaption>It's a turtle!</figcaption>
-          </figure>
+    <div class="carousel-demos">
+      <article class="carousel-demo carousel-demo--native">
+        <h3>Native CSS Overflow 5</h3>
+        <div role="region" aria-label="Native video carousel demo">
+          <div
+            class="carousel carousel--native-video carousel--unsnapped-inert"
+            aria-live="polite"
+          >
+            {
+              videos.map((video, index) => (
+                <div
+                  class="carousel__slide"
+                  data-label={`Slide ${index + 1}`}
+                >
+                  <figure
+                    class="parallax-item"
+                    role="tabpanel"
+                    aria-label={`Slide ${index + 1}`}
+                  >
+                    <video
+                      width="1280"
+                      height="720"
+                      src={video.source}
+                      autoplay
+                      muted
+                      loop
+                      playsinline
+                    />
+                    <figcaption>{video.caption}</figcaption>
+                  </figure>
+                </div>
+              ))
+            }
+          </div>
         </div>
 
-        <div class="carousel__slide" data-label="Slide 2">
-          <figure class="parallax-item" role="tabpanel" aria-label="Slide 2">
-            <video
-              width="1280"
-              height="720"
-              src="/carousel/snow.mp4"
-              autoplay
-              muted
-              loop></video>
-            <figcaption>Falling Snow</figcaption>
-          </figure>
+        <div class="fixed-logo">
+          <img
+            src="/carousel/googletv-logo.svg"
+            alt="Google TV"
+            width="300"
+            height="52"
+          />
         </div>
+      </article>
 
-        <div class="carousel__slide" data-label="Slide 3">
-          <figure class="parallax-item" role="tabpanel" aria-label="Slide 3">
-            <video
-              width="1280"
-              height="720"
-              src="/carousel/wheel.mp4"
-              autoplay
-              muted
-              loop></video>
-            <figcaption>Ferris Wheel</figcaption>
-          </figure>
-        </div>
+      <article class="carousel-demo">
+        <h3>Polyfilled <code>&lt;x-carousel&gt;</code></h3>
+        <x-carousel
+          id="horizontal-video-polyfill"
+          role="region"
+          aria-label="Polyfilled video carousel demo"
+        >
+          <div data-carousel-viewport>
+            <div
+              class="carousel"
+              data-carousel-scroller
+              data-inert-unsnapped
+              aria-live="polite"
+            >
+              {
+                videos.map((video, index) => (
+                  <div
+                    id={`polyfill-video-slide-${index + 1}`}
+                    class="carousel__slide"
+                    data-carousel-slide
+                    data-label={`Slide ${index + 1}`}
+                  >
+                    <figure
+                      class="parallax-item"
+                      role="tabpanel"
+                      aria-label={`Slide ${index + 1}`}
+                    >
+                      <video
+                        width="1280"
+                        height="720"
+                        src={video.source}
+                        autoplay
+                        muted
+                        loop
+                        playsinline
+                      />
+                      <figcaption>{video.caption}</figcaption>
+                    </figure>
+                  </div>
+                ))
+              }
+            </div>
 
-        <div class="carousel__slide" data-label="Slide 4">
-          <figure class="parallax-item" role="tabpanel" aria-label="Slide 4">
-            <video
-              width="1280"
-              height="720"
-              src="/carousel/chameleon.mp4"
-              autoplay
-              muted
-              loop></video>
-            <figcaption>I See You</figcaption>
-          </figure>
-        </div>
-      </div>
-    </div>
-    <div class="fixed-logo">
-      <img
-        src="/carousel/googletv-logo.svg"
-        alt="Google TV"
-        width="300"
-        height="52"
-      />
+            <button
+              type="button"
+              commandfor="horizontal-video-polyfill"
+              command="--prev"
+              data-carousel-scroll-button="prev"
+              aria-label="Previous slide"
+            ></button>
+            <button
+              type="button"
+              commandfor="horizontal-video-polyfill"
+              command="--next"
+              data-carousel-scroll-button="next"
+              aria-label="Next slide"
+            ></button>
+          </div>
+
+          <output data-carousel-page aria-live="polite">1 / {videos.length}</output>
+
+          <div class="fixed-logo">
+            <img
+              src="/carousel/googletv-logo.svg"
+              alt="Google TV"
+              width="300"
+              height="52"
+            />
+          </div>
+        </x-carousel>
+      </article>
     </div>
   </section>
 </Layout>
+
+<script>
+  import "../../components/x-carousel";
+
+  const nativeCarousel = document.querySelector<HTMLElement>(
+    ".carousel--native-video",
+  );
+  const polyfilledCarousel = document.querySelector("x-carousel");
+
+  const getNativeSnapTarget = () => {
+    if (!nativeCarousel) return;
+
+    const nativeBounds = nativeCarousel.getBoundingClientRect();
+    const nativeStyles = getComputedStyle(nativeCarousel);
+    const isRtl = nativeStyles.direction === "rtl";
+    const scrollPadding =
+      Number.parseFloat(nativeStyles.scrollPaddingInlineStart) || 0;
+    const snapLine = isRtl
+      ? nativeBounds.right - scrollPadding
+      : nativeBounds.left + scrollPadding;
+
+    return Array.from(
+      nativeCarousel.querySelectorAll<HTMLElement>(":scope > .carousel__slide"),
+    ).reduce<{ slide?: HTMLElement; distance: number }>(
+      (closest, slide) => {
+        const slideBounds = slide.getBoundingClientRect();
+        const slideSnapPoint = isRtl ? slideBounds.right : slideBounds.left;
+        const distance = Math.abs(slideSnapPoint - snapLine);
+
+        return distance < closest.distance ? { slide, distance } : closest;
+      },
+      { distance: Number.POSITIVE_INFINITY },
+    ).slide;
+  };
+
+  const preserveNativeSnapTarget = () => {
+    setTimeout(() => {
+      const nativeSnapTarget = getNativeSnapTarget();
+      if (!nativeSnapTarget) return;
+
+      const { scrollX, scrollY } = window;
+      nativeSnapTarget.scrollIntoView({
+        behavior: "instant",
+        block: "nearest",
+        inline: "start",
+      });
+      window.scrollTo({
+        behavior: "instant",
+        left: scrollX,
+        top: scrollY,
+      });
+    });
+  };
+
+  if (polyfilledCarousel) {
+    polyfilledCarousel.addEventListener("click", preserveNativeSnapTarget);
+    polyfilledCarousel.addEventListener("focusin", preserveNativeSnapTarget);
+  }
+</script>
 
 <style>
   @keyframes squeeze {
@@ -124,6 +263,29 @@ import Layout from "../../layouts/Layout.astro";
     }
   }
 
+  .carousel-demos {
+    display: grid;
+    gap: var(--size-10);
+    min-inline-size: 0;
+  }
+
+  .carousel-demo {
+    padding-block-end: var(--size-7);
+    display: grid;
+    gap: var(--size-3);
+    min-inline-size: 0;
+
+    > h3 {
+      justify-self: center;
+      padding-inline: 5vmin;
+      text-align: center;
+    }
+  }
+
+  .carousel-demo--native {
+    anchor-scope: --carousel;
+  }
+
   .carousel {
     counter-reset: page curpage;
 
@@ -134,11 +296,31 @@ import Layout from "../../layouts/Layout.astro";
     border-radius: 20px;
     box-shadow: var(--shadow-6);
 
-    /* undo list styles */
     list-style-type: none;
     padding: 0;
     margin: 5vmin;
 
+    @media (width >= 1200px) {
+      inline-size: min(80cqi, 1280px);
+    }
+
+    .carousel__slide {
+      scroll-snap-stop: always;
+
+      padding: 0;
+      max-inline-size: initial;
+
+      flex-shrink: 0;
+      inline-size: 100cqi;
+      aspect-ratio: 16 / 9;
+      overflow: clip;
+
+      contain-intrinsic-inline-size: 100cqi;
+      content-visibility: auto;
+    }
+  }
+
+  .carousel--native-video {
     scroll-marker-group: before;
 
     &::after {
@@ -150,27 +332,11 @@ import Layout from "../../layouts/Layout.astro";
       margin-block: 10px;
     }
 
-    @media (width >= 1200px) {
-      inline-size: min(80cqi, 1280px);
-    }
-
     .carousel__slide {
-      scroll-snap-stop: always;
-
       counter-increment: page;
       animation: count-before linear forwards;
       animation-timeline: view(x);
       animation-range: entry 50% entry 50%;
-
-      padding: 0;
-      max-inline-size: initial;
-
-      flex-shrink: 0;
-      inline-size: 100cqi;
-      overflow: clip;
-
-      contain-intrinsic-inline-size: 100cqi;
-      content-visibility: auto;
     }
 
     &::scroll-button(left) {
@@ -185,53 +351,6 @@ import Layout from "../../layouts/Layout.astro";
       position-area: center span-inline-start;
     }
 
-    &::scroll-button(*) {
-      background-color: #fff4;
-      background-repeat: no-repeat;
-      background-position: center;
-      background-size: 80%;
-      backdrop-filter: blur(10px);
-
-      text-indent: 100vw;
-      inline-size: 50px;
-      block-size: 50px;
-      border-radius: 1e3px;
-      border: none;
-
-      cursor: pointer;
-
-      position: fixed;
-      position-anchor: --carousel;
-      margin-inline: 30px;
-
-      transition:
-        transform 0.3s var(--ease-spring-3),
-        opacity 0.5s var(--ease-3),
-        outline-offset 0.25s var(--ease-3);
-    }
-
-    &::scroll-button(*):is(:hover, :focus-visible) {
-      background-color: #fff3;
-      transform: scale(1.1);
-    }
-
-    &::scroll-button(*):focus-visible:not(:active) {
-      outline-offset: 2px;
-      outline: 2px solid var(--link);
-    }
-
-    &::scroll-button(right):active {
-      transform: translateX(5px) scale(0.95);
-    }
-    &::scroll-button(left):active {
-      transform: translateX(-5px) scale(0.95);
-    }
-
-    &::scroll-button(*):disabled {
-      opacity: 0%;
-      cursor: not-allowed;
-    }
-
     &::scroll-marker-group {
       content: "Hi";
 
@@ -241,18 +360,130 @@ import Layout from "../../layouts/Layout.astro";
       inset-inline-end: calc(anchor(right) - 30px);
 
       display: grid;
-
-      background: none; /* todo: get rid of this when scroll-button(*) stops matching */
+      background: none;
     }
+  }
+
+  .carousel--native-video::scroll-button(*) {
+    background-color: #fff4;
+    background-repeat: no-repeat;
+    background-position: center;
+    background-size: 80%;
+    backdrop-filter: blur(10px);
+
+    text-indent: 100vw;
+    inline-size: 50px;
+    block-size: 50px;
+    padding: 0;
+    border-radius: 1e3px;
+    border: none;
+
+    cursor: pointer;
+
+    position: fixed;
+    position-anchor: --carousel;
+    margin-inline: 30px;
+
+    transition:
+      transform 0.3s var(--ease-spring-3),
+      opacity 0.5s var(--ease-3),
+      outline-offset 0.25s var(--ease-3);
+  }
+
+  x-carousel [data-carousel-scroll-button] {
+    background-color: #fff4;
+    background-repeat: no-repeat;
+    background-position: center;
+    background-size: 80%;
+    backdrop-filter: blur(10px);
+
+    text-indent: 100vw;
+    inline-size: 50px;
+    block-size: 50px;
+    padding: 0;
+    border-radius: 1e3px;
+    border: none;
+
+    cursor: pointer;
+
+    position: fixed;
+    position-anchor: --carousel;
+    margin-inline: 30px;
+
+    transition:
+      transform 0.3s var(--ease-spring-3),
+      opacity 0.5s var(--ease-3),
+      outline-offset 0.25s var(--ease-3);
+  }
+
+  x-carousel [data-carousel-scroll-button="prev"] {
+    background-image: url(https://api.iconify.design/material-symbols:chevron-left.svg?color=%23ffffff);
+    position-area: center span-inline-end;
+  }
+
+  x-carousel [data-carousel-scroll-button="next"] {
+    background-image: url(https://api.iconify.design/material-symbols:chevron-right.svg?color=%23ffffff);
+    position-area: center span-inline-start;
+  }
+
+  .carousel--native-video::scroll-button(*):is(:hover, :focus-visible) {
+    background-color: #fff3;
+    transform: scale(1.1);
+  }
+
+  x-carousel:has([data-carousel-scroll-button]:is(:hover, :focus-visible))
+    [data-carousel-scroll-button]:not(:disabled) {
+    background-color: #fff3;
+    transform: scale(1.1);
+  }
+
+  .carousel--native-video::scroll-button(*):focus-visible:not(:active) {
+    outline-offset: 2px;
+    outline: 2px solid var(--link);
+  }
+
+  x-carousel [data-carousel-scroll-button]:focus-visible:not(:active) {
+    outline-offset: 2px;
+    outline: 2px solid var(--link);
+  }
+
+  .carousel--native-video::scroll-button(right):active {
+    transform: translateX(5px) scale(0.95);
+  }
+
+  x-carousel [data-carousel-scroll-button="next"]:active {
+    transform: translateX(5px) scale(0.95);
+  }
+
+  .carousel--native-video::scroll-button(left):active {
+    transform: translateX(-5px) scale(0.95);
+  }
+
+  x-carousel [data-carousel-scroll-button="prev"]:active {
+    transform: translateX(-5px) scale(0.95);
+  }
+
+  .carousel--native-video::scroll-button(*):disabled {
+    opacity: 0%;
+    cursor: not-allowed;
+  }
+
+  x-carousel [data-carousel-scroll-button]:disabled {
+    opacity: 0%;
+    cursor: not-allowed;
+  }
+
+  x-carousel [data-carousel-page] {
+    position: absolute;
+    position-anchor: --carousel;
+    position-area: top span-left;
+    margin-inline: 30px;
+    margin-block: 10px;
   }
 
   .parallax-item {
     display: grid;
     place-items: end start;
-
-    animation: squeeze linear both;
-    animation-timeline: view(inline);
-    timeline-scope: --parallax-item;
 
     > * {
       grid-area: 1/1;
@@ -272,11 +503,21 @@ import Layout from "../../layouts/Layout.astro";
       position: sticky;
       left: 0;
     }
+  }
 
-    & video {
-      animation: stay-centered linear both;
-      animation-timeline: view(x);
-      timeline-scope: --parallax-item;
+  @supports ((animation-timeline: view()) and (animation-range: entry)) {
+    @media (prefers-reduced-motion: no-preference) {
+      .parallax-item {
+        animation: squeeze linear both;
+        animation-timeline: view(inline);
+        timeline-scope: --parallax-item;
+
+        & video {
+          animation: stay-centered linear both;
+          animation-timeline: view(x);
+          timeline-scope: --parallax-item;
+        }
+      }
     }
   }
 

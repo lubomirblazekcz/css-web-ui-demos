@@ -1,5 +1,45 @@
 ---
 import Layout from "../../layouts/Layout.astro";
+import "../../styles/x-carousel.css";
+
+const cards = [
+  {
+    title: "Cyber Jumper",
+    image: "https://assets.codepen.io/2585/Roboto.svg",
+    alt: "a black and white line drawing of a futuristic person in a jacket pants and helmet striding forward",
+    description:
+      "Lorem ipsum dolor sit amet consectetur, adipisicing elit. Quae, neque.",
+  },
+  {
+    title: "Jam Strut",
+    image: "https://assets.codepen.io/2585/Entertainment.svg",
+    alt: "a black and white drawing of a person with curly hair, wearing a jacket and pants and holding, what looks like a small media player",
+    description:
+      "Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.",
+  },
+  {
+    title: "Mechanical Love",
+    image: "https://assets.codepen.io/2585/Mechanical+Love.svg",
+    alt: "a black and white drawing of two people standing side by side with their arms around each other and wearing backpacks",
+    description:
+      "Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur.",
+    initial: true,
+  },
+  {
+    title: "Waiting Patiently",
+    image: "https://assets.codepen.io/2585/Waiting.svg",
+    alt: "a black and white drawing of a person sitting cross-legged",
+    description:
+      "Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.",
+  },
+  {
+    title: "New Beginnings Are Beautiful",
+    image: "https://assets.codepen.io/2585/New+Beginnings.svg",
+    alt: "a black and white drawing of a person sitting in an armchair reading a book, the chair has wires that are connected to the person.",
+    description:
+      "Sed ut perspiciatis unde omnis iste natus error sit voluptatem accusantium doloremque laudantium, totam rem aperiam, eaque ipsa quae ab illo inventore veritatis et quasi architecto beatae vitae dicta sunt explicabo.",
+  },
+];
 ---
 
 <Layout title="Carousel Gallery">
@@ -15,135 +55,222 @@ import Layout from "../../layouts/Layout.astro";
         <span>Full Bleed</span>
       </div>
       <p>Buttons and markers both anchored to the bottom</p>
+      <p>
+        The first example uses CSS Overflow 5 pseudo-elements. The second uses
+        explicit HTML controls enhanced by <code>&lt;x-carousel&gt;</code> so the
+        native and polyfilled implementations can be compared one-to-one.
+      </p>
     </header>
 
-    <div role="region" aria-label="Card carousel demo">
-      <div
-        class="carousel carousel--scroll-markers carousel--scroll-buttons carousel--offscreen-inert"
-        aria-live="polite"
-      >
-        <div class="carousel__slide" data-label="Cyber Jumper">
-          <article class="card snapped">
-            <figure>
-              <picture>
-                <img
-                  src="https://assets.codepen.io/2585/Roboto.svg"
-                  alt="a black and white line drawing of a futuristic person in a jacket pants and helmet striding forward"
-                  height="500"
-                  width="500"
-                />
-              </picture>
-              <figcaption>
-                <h5>Cyber Jumper</h5>
-                <p>
-                  Lorem ipsum dolor sit amet consectetur, adipisicing elit.
-                  Quae, neque.
-                </p>
-                <a href="#">Check it out</a>
-              </figcaption>
-            </figure>
-          </article>
+    <div class="carousel-demos">
+      <article class="carousel-demo carousel-demo--native">
+        <h3>Native CSS Overflow 5</h3>
+        <div role="region" aria-label="Native card carousel demo">
+          <div
+            class="carousel carousel--native-cards carousel--scroll-markers carousel--scroll-buttons carousel--offscreen-inert"
+            aria-live="polite"
+          >
+            {
+              cards.map((card) => (
+                <div
+                  class:list={[
+                    "carousel__slide",
+                    { "scroll-start": card.initial },
+                  ]}
+                  data-label={card.title}
+                >
+                  <article class="card">
+                    <figure>
+                      <picture>
+                        <img
+                          src={card.image}
+                          alt={card.alt}
+                          height="500"
+                          width="500"
+                        />
+                      </picture>
+                      <figcaption>
+                        <h5>{card.title}</h5>
+                        <p>{card.description}</p>
+                        <a href="#">Check it out</a>
+                      </figcaption>
+                    </figure>
+                  </article>
+                </div>
+              ))
+            }
+          </div>
         </div>
+      </article>
 
-        <div class="carousel__slide" data-label="Jam Strut">
-          <article class="card">
-            <figure>
-              <picture>
-                <img
-                  src="https://assets.codepen.io/2585/Entertainment.svg"
-                  alt="a black and white drawing of a person with curly hair, wearing a jacket and pants and holding, what looks like a small media player"
-                  height="500"
-                  width="500"
-                />
-              </picture>
-              <figcaption>
-                <h5>Jam Strut</h5>
-                <p>
-                  Ut enim ad minim veniam, quis nostrud exercitation ullamco
-                  laboris nisi ut aliquip ex ea commodo consequat.
-                </p>
-                <a href="#">Check it out</a>
-              </figcaption>
-            </figure>
-          </article>
-        </div>
+      <article class="carousel-demo">
+        <h3>Polyfilled <code>&lt;x-carousel&gt;</code></h3>
+        <x-carousel
+          id="horizontal-cards-polyfill"
+          role="region"
+          aria-label="Polyfilled card carousel demo"
+        >
+          <div data-carousel-viewport>
+            <div
+              class="carousel"
+              data-carousel-scroller
+              data-inert-offscreen
+              aria-live="polite"
+            >
+              {
+                cards.map((card, index) => (
+                  <div
+                    id={`polyfill-card-slide-${index + 1}`}
+                    class="carousel__slide"
+                    data-carousel-slide
+                    data-carousel-initial={card.initial ? "" : undefined}
+                    data-label={card.title}
+                  >
+                    <article class="card">
+                      <figure>
+                        <picture>
+                          <img
+                            src={card.image}
+                            alt={card.alt}
+                            height="500"
+                            width="500"
+                          />
+                        </picture>
+                        <figcaption>
+                          <h5>{card.title}</h5>
+                          <p>{card.description}</p>
+                          <a href="#">Check it out</a>
+                        </figcaption>
+                      </figure>
+                    </article>
+                  </div>
+                ))
+              }
+            </div>
 
-        <div class="carousel__slide" data-label="Mechanical Love">
-          <article class="card scroll-start">
-            <figure>
-              <picture>
-                <img
-                  src="https://assets.codepen.io/2585/Mechanical+Love.svg"
-                  alt="a black and white drawing of two people standing side by side with their arms around each other and wearing backpacks"
-                  height="500"
-                  width="500"
-                />
-              </picture>
-              <figcaption>
-                <h5>Mechanical Love</h5>
-                <p>
-                  Duis aute irure dolor in reprehenderit in voluptate velit esse
-                  cillum dolore eu fugiat nulla pariatur.
-                </p>
-                <a href="#">Check it out</a>
-              </figcaption>
-            </figure>
-          </article>
-        </div>
+            <button
+              type="button"
+              commandfor="horizontal-cards-polyfill"
+              command="--prev"
+              data-carousel-scroll-button="prev"
+              aria-label="Scroll left"
+            >
+              arrow_back
+            </button>
+            <button
+              type="button"
+              commandfor="horizontal-cards-polyfill"
+              command="--next"
+              data-carousel-scroll-button="next"
+              aria-label="Scroll right"
+            >
+              arrow_forward
+            </button>
+          </div>
 
-        <div class="carousel__slide" data-label="Waiting Patiently">
-          <article class="card">
-            <figure>
-              <picture>
-                <img
-                  src="https://assets.codepen.io/2585/Waiting.svg"
-                  alt="a black and white drawing of a person sitting cross-legged"
-                  height="500"
-                  width="500"
+          <nav data-carousel-marker-group aria-label="Choose a card">
+            {
+              cards.map((card, index) => (
+                <a
+                  href={`#polyfill-card-slide-${index + 1}`}
+                  data-carousel-marker
+                  aria-label={card.title}
+                  aria-current={card.initial ? "true" : undefined}
                 />
-              </picture>
-              <figcaption>
-                <h5>Waiting Patiently</h5>
-                <p>
-                  Excepteur sint occaecat cupidatat non proident, sunt in culpa
-                  qui officia deserunt mollit anim id est laborum.
-                </p>
-                <a href="#">Check it out</a>
-              </figcaption>
-            </figure>
-          </article>
-        </div>
-
-        <div class="carousel__slide" data-label="New Beginnings Are Beautiful">
-          <article class="card">
-            <figure>
-              <picture>
-                <img
-                  src="https://assets.codepen.io/2585/New+Beginnings.svg"
-                  alt="a black and white drawing of a person sitting in an armchair reading a book, the chair has wires that are connected to the person."
-                  height="500"
-                  width="500"
-                />
-              </picture>
-              <figcaption>
-                <h5>New Beginnings Are Beautiful</h5>
-                <p>
-                  Sed ut perspiciatis unde omnis iste natus error sit voluptatem
-                  accusantium doloremque laudantium, totam rem aperiam, eaque
-                  ipsa quae ab illo inventore veritatis et quasi architecto
-                  beatae vitae dicta sunt explicabo.
-                </p>
-                <a href="#">Check it out</a>
-              </figcaption>
-            </figure>
-          </article>
-        </div>
-      </div>
+              ))
+            }
+          </nav>
+        </x-carousel>
+      </article>
     </div>
   </section>
 </Layout>
 
+<script>
+  import "../../components/x-carousel";
+
+  const nativeCarousel = document.querySelector<HTMLElement>(
+    ".carousel--native-cards",
+  );
+  const polyfilledCarousel = document.querySelector("x-carousel");
+
+  const getNativeSnapTarget = () => {
+    if (!nativeCarousel) return;
+
+    const nativeBounds = nativeCarousel.getBoundingClientRect();
+    const nativeStyles = getComputedStyle(nativeCarousel);
+    const scrollPaddingStart =
+      Number.parseFloat(nativeStyles.scrollPaddingInlineStart) || 0;
+    const scrollPaddingEnd =
+      Number.parseFloat(nativeStyles.scrollPaddingInlineEnd) || 0;
+    const snapLine =
+      nativeBounds.left +
+      scrollPaddingStart +
+      (nativeBounds.width - scrollPaddingStart - scrollPaddingEnd) / 2;
+
+    return Array.from(
+      nativeCarousel.querySelectorAll<HTMLElement>(":scope > .carousel__slide"),
+    ).reduce<{ slide?: HTMLElement; distance: number }>(
+      (closest, slide) => {
+        const slideBounds = slide.getBoundingClientRect();
+        const slideSnapPoint = (slideBounds.left + slideBounds.right) / 2;
+        const distance = Math.abs(slideSnapPoint - snapLine);
+
+        return distance < closest.distance ? { slide, distance } : closest;
+      },
+      { distance: Number.POSITIVE_INFINITY },
+    ).slide;
+  };
+
+  const preserveNativeSnapTarget = () => {
+    setTimeout(() => {
+      const nativeSnapTarget = getNativeSnapTarget();
+      if (!nativeSnapTarget) return;
+
+      const { scrollX, scrollY } = window;
+      nativeSnapTarget.scrollIntoView({
+        behavior: "instant",
+        block: "nearest",
+        inline: "center",
+      });
+      window.scrollTo({
+        behavior: "instant",
+        left: scrollX,
+        top: scrollY,
+      });
+    });
+  };
+
+  if (polyfilledCarousel) {
+    polyfilledCarousel.addEventListener("click", preserveNativeSnapTarget);
+    polyfilledCarousel.addEventListener("focusin", preserveNativeSnapTarget);
+  }
+</script>
+
 <style>
+  .carousel-demos {
+    display: grid;
+    gap: var(--size-10);
+    min-inline-size: 0;
+  }
+
+  .carousel-demo {
+    padding-block-end: var(--size-7);
+    display: grid;
+    gap: var(--size-3);
+    min-inline-size: 0;
+
+    > h3 {
+      justify-self: center;
+      padding-inline: 5vmin;
+      text-align: center;
+    }
+  }
+
+  .carousel-demo--native {
+    anchor-scope: --carousel;
+  }
+
   .carousel {
     inline-size: 100cqi;
     list-style-type: none;
@@ -182,12 +309,27 @@ import Layout from "../../layouts/Layout.astro";
           transform: translateY(100%);
         }
       }
+
+      x-carousel & .carousel__slide:not([data-scroll-snapped="inline"]) {
+        figcaption {
+          transform: translateY(100%);
+        }
+      }
     }
 
     &::scroll-button(right),
     &::scroll-button(left) {
       position-area: var(--_inner-under);
     }
+  }
+
+  x-carousel [data-carousel-marker-group] {
+    padding-block: 0;
+    block-size: 44px;
+  }
+
+  x-carousel [data-carousel-scroll-button] {
+    position-area: var(--_inner-under);
   }
 
   .card {

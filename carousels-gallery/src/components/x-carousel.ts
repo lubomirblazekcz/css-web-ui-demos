@@ -9,9 +9,11 @@ class XCarousel extends HTMLElement {
   #slides: HTMLElement[] = [];
   #markers: HTMLAnchorElement[] = [];
   #markerGroup: HTMLElement | null = null;
+  #pageOutput: HTMLElement | null = null;
   #activeSlide: HTMLElement | null = null;
   #resizeObserver: ResizeObserver | null = null;
   #visibilityObserver: IntersectionObserver | null = null;
+  #initialSlide: HTMLElement | null = null;
   #animationFrame = 0;
 
   connectedCallback() {
@@ -30,6 +32,7 @@ class XCarousel extends HTMLElement {
     this.#markerGroup = this.querySelector<HTMLElement>(
       "[data-carousel-marker-group]",
     );
+    this.#pageOutput = this.querySelector<HTMLElement>("[data-carousel-page]");
     this.#markers = this.#markerGroup
       ? Array.from(
           this.#markerGroup.querySelectorAll<HTMLAnchorElement>(
@@ -58,13 +61,29 @@ class XCarousel extends HTMLElement {
     this.#slides.forEach((slide) => this.#visibilityObserver?.observe(slide));
 
     this.toggleAttribute("data-enhanced", true);
-    this.#scheduleSync();
+
+    this.#initialSlide = this.#slides.find((slide) =>
+      slide.hasAttribute("data-carousel-initial"),
+    ) ?? null;
+
+    if (this.#initialSlide) {
+      if (document.readyState === "complete") {
+        this.#scrollToInitialSlide();
+      } else {
+        window.addEventListener("load", this.#scrollToInitialSlide, {
+          once: true,
+        });
+      }
+    } else {
+      this.#scheduleSync();
+    }
   }
 
   disconnectedCallback() {
     this.removeEventListener("command", this.#onCommand);
     this.#scroller?.removeEventListener("scroll", this.#scheduleSync);
     this.#markerGroup?.removeEventListener("click", this.#onMarkerClick);
+    window.removeEventListener("load", this.#scrollToInitialSlide);
     this.#resizeObserver?.disconnect();
     this.#visibilityObserver?.disconnect();
     cancelAnimationFrame(this.#animationFrame);
@@ -73,7 +92,9 @@ class XCarousel extends HTMLElement {
     this.#visibilityObserver = null;
     this.#scroller = null;
     this.#markerGroup = null;
+    this.#pageOutput = null;
     this.#activeSlide = null;
+    this.#initialSlide = null;
     this.#slides = [];
     this.#markers = [];
   }
@@ -102,30 +123,75 @@ class XCarousel extends HTMLElement {
     this.#scrollToSlide(target);
   };
 
-  #scrollToSlide(slide: HTMLElement) {
+  #scrollToInitialSlide = () => {
+    requestAnimationFrame(() => {
+      requestAnimationFrame(() => {
+        if (!this.isConnected || !this.#initialSlide) return;
+
+        this.#scrollToSlide(this.#initialSlide, "instant");
+        this.#scheduleSync();
+      });
+    });
+  };
+
+  #scrollToSlide(slide: HTMLElement, behavior = this.#scrollBehavior) {
     if (!this.#scroller) return;
+
+    const left = this.#getInlineSnapOffset(slide);
+
+    if (behavior === "instant") {
+      const scrollBehavior = this.#scroller.style.scrollBehavior;
+      this.#scroller.style.scrollBehavior = "auto";
+      this.#scroller.scrollLeft += left;
+      this.#scroller.style.scrollBehavior = scrollBehavior;
+      return;
+    }
+
+    this.#scroller.scrollBy({
+      behavior,
+      left,
+    });
+  }
+
+  #getInlineSnapOffset(slide: HTMLElement) {
+    if (!this.#scroller) return 0;
 
     const scrollerBounds = this.#scroller.getBoundingClientRect();
     const scrollerStyles = getComputedStyle(this.#scroller);
     const slideBounds = slide.getBoundingClientRect();
+    const slideStyles = getComputedStyle(slide);
     const isRtl = scrollerStyles.direction === "rtl";
-    const scrollPadding =
+    const scrollPaddingStart =
       Number.parseFloat(scrollerStyles.scrollPaddingInlineStart) || 0;
-    const snapLine = isRtl
-      ? scrollerBounds.right - scrollPadding
-      : scrollerBounds.left + scrollPadding;
-    const slideSnapPoint = isRtl ? slideBounds.right : slideBounds.left;
+    const scrollPaddingEnd =
+      Number.parseFloat(scrollerStyles.scrollPaddingInlineEnd) || 0;
+    const snapAlignValues = slideStyles.scrollSnapAlign.trim().split(/\s+/);
+    const snapAlign =
+      snapAlignValues.length > 1 ? snapAlignValues[1] : snapAlignValues[0];
 
-    this.#scroller.scrollBy({
-      behavior: this.#scrollBehavior,
-      left: slideSnapPoint - snapLine,
-    });
+    const scrollerStart = isRtl
+      ? scrollerBounds.right - scrollPaddingStart
+      : scrollerBounds.left + scrollPaddingStart;
+    const scrollerEnd = isRtl
+      ? scrollerBounds.left + scrollPaddingEnd
+      : scrollerBounds.right - scrollPaddingEnd;
+    const slideStart = isRtl ? slideBounds.right : slideBounds.left;
+    const slideEnd = isRtl ? slideBounds.left : slideBounds.right;
+
+    if (snapAlign === "center") {
+      return (
+        (slideBounds.left + slideBounds.right) / 2 -
+        (scrollerStart + scrollerEnd) / 2
+      );
+    }
+
+    if (snapAlign === "end") return slideEnd - scrollerEnd;
+
+    return slideStart - scrollerStart;
   }
 
   #onVisibilityChange = (entries: IntersectionObserverEntry[]) => {
     if (!this.#scroller) return;
-
-    const inertOffscreen = this.#scroller.hasAttribute("data-inert-offscreen");
 
     for (const entry of entries) {
       if (!(entry.target instanceof HTMLElement)) continue;
@@ -137,9 +203,24 @@ class XCarousel extends HTMLElement {
         entry.target.removeAttribute("data-scroll-visible");
       }
 
-      if (inertOffscreen) entry.target.inert = !isVisible;
+      this.#syncSlideInert(entry.target);
     }
   };
+
+  #syncSlideInert(slide: HTMLElement) {
+    if (!this.#scroller) return;
+
+    const inertOffscreen =
+      this.#scroller.hasAttribute("data-inert-offscreen") &&
+      !slide.hasAttribute("data-scroll-visible");
+    const inertUnsnapped =
+      this.#scroller.hasAttribute("data-inert-unsnapped") &&
+      !slide.hasAttribute("data-scroll-snapped");
+
+    if (this.#scroller.matches("[data-inert-offscreen], [data-inert-unsnapped]")) {
+      slide.toggleAttribute("inert", inertOffscreen || inertUnsnapped);
+    }
+  }
 
   #scheduleSync = () => {
     cancelAnimationFrame(this.#animationFrame);
@@ -149,22 +230,11 @@ class XCarousel extends HTMLElement {
   #syncState() {
     if (!this.#scroller || this.#slides.length === 0) return;
 
-    const scrollerBounds = this.#scroller.getBoundingClientRect();
-    const scrollerStyles = getComputedStyle(this.#scroller);
-    const isRtl = scrollerStyles.direction === "rtl";
-    const scrollPadding =
-      Number.parseFloat(scrollerStyles.scrollPaddingInlineStart) || 0;
-    const snapLine = isRtl
-      ? scrollerBounds.right - scrollPadding
-      : scrollerBounds.left + scrollPadding;
-
     let closestSlide = this.#slides[0];
     let closestDistance = Number.POSITIVE_INFINITY;
 
     for (const slide of this.#slides) {
-      const slideBounds = slide.getBoundingClientRect();
-      const slideSnapPoint = isRtl ? slideBounds.right : slideBounds.left;
-      const distance = Math.abs(slideSnapPoint - snapLine);
+      const distance = Math.abs(this.#getInlineSnapOffset(slide));
 
       if (distance < closestDistance) {
         closestDistance = distance;
@@ -212,9 +282,15 @@ class XCarousel extends HTMLElement {
       } else {
         candidate.removeAttribute("data-scroll-snapped");
       }
+
+      this.#syncSlideInert(candidate);
     }
 
     this.dataset.activeSlide = slide.id;
+
+    if (this.#pageOutput) {
+      this.#pageOutput.textContent = `${this.#slides.indexOf(slide) + 1} / ${this.#slides.length}`;
+    }
 
     const activeMarker = this.#markers.find(
       (marker) => decodeURIComponent(marker.hash.slice(1)) === slide.id,
